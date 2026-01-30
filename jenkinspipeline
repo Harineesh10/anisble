@@ -1,0 +1,75 @@
+pipeline {
+    agent any
+
+    environment {
+        // AWS credentials stored in Jenkins (ID = aws-creds)
+        AWS_CREDS = credentials('aws-creds')
+    }
+
+    stages {
+
+        stage('Clone Terraform Repo') {
+            steps {
+                dir('terraform') {
+                    git branch: 'main',
+                        url: 'https://github.com/Harineesh10/terraform.git'
+                }
+            }
+        }
+
+        stage('Terraform Init') {
+            steps {
+                dir('terraform') {
+                    sh 'terraform init'
+                }
+            }
+        }
+
+        stage('Terraform Apply') {
+            steps {
+                dir('terraform') {
+                    sh '''
+                    export AWS_ACCESS_KEY_ID=$(echo $AWS_CREDS | cut -d: -f1)
+                    export AWS_SECRET_ACCESS_KEY=$(echo $AWS_CREDS | cut -d: -f2)
+                    terraform apply -auto-approve
+                    '''
+                }
+            }
+        }
+
+        stage('Clone Ansible Repo') {
+            steps {
+                dir('anisble') {  // your repo name as-is
+                    git branch: 'main',
+                        url: 'https://github.com/Harineesh10/anisble.git'
+                }
+            }
+        }
+
+        stage('Run Ansible Playbook') {
+            steps {
+                dir('anisble') {
+                    sh 'ansible-playbook -i inventory deploy.yml'
+                }
+            }
+        }
+
+        stage('Clone WebApp Repo') {
+            steps {
+                dir('webapp') {
+                    git branch: 'main',
+                        url: 'https://github.com/Harineesh10/webapp.git'
+                }
+            }
+        }
+
+        stage('Deploy index.html') {
+            steps {
+                sh '''
+                ansible apache -i anisble/inventory -b -m copy \
+                -a "src=webapp/index.html dest=/var/www/html/index.html"
+                '''
+            }
+        }
+    }
+}
