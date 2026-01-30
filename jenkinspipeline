@@ -12,7 +12,7 @@ pipeline {
             steps {
                 dir('terraform') {
                     git branch: 'main',
-                        url: 'https://github.com/Harineesh10/terraform.git'
+                        url: 'git@github.com:Harineesh10/terraform.git'
                 }
             }
         }
@@ -58,7 +58,7 @@ pipeline {
             steps {
                 dir('webapp') {
                     git branch: 'main',
-                        url: 'https://github.com/Harineesh10/webapp.git'
+                        url: 'git@github.com:Harineesh10/webapp.git'
                 }
             }
         }
