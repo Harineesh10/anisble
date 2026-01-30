@@ -41,7 +41,7 @@ pipeline {
             steps {
                 dir('anisble') {  // your repo name as-is
                     git branch: 'main',
-                        url: 'https://github.com/Harineesh10/anisble.git'
+                        url: 'git@github.com:Harineesh10/anisble.git'
                 }
             }
         }
